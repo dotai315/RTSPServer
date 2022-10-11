@@ -121,5 +121,10 @@ int             tcp_config(tcp_t *tcp, const char *node, const char *service)
     }
 
     freeaddrinfo(*res);
+    if (listen(tcp_getSockFileDescriptor(tcp), 10) != 0)
+    {
+        fprintf(stderr, "[ERROR] Listen Failed: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
     return 0;
 }
