@@ -11,7 +11,7 @@ INCLUDES=-Iinc
 
 SRC=$(WORKSPACE)/src
 MAIN_SRC=$(SRC)/main.c
-#SRCS_OBJ=$(SRC)/libhello.c $(SRC)/libscan.c
+SRCS_OBJ=$(SRC)/libtcp.c
 
 OBJ=$(WORKSPACE)/obj
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS_OBJ))
@@ -24,15 +24,15 @@ LIB=$(WORKSPACE)/lib
 #SHARED_LIBS=-lhello -lscan
 
 
-#STATIC_LIB=$(LIB)/static
-#STATIC_LIB_SRCS=$(SRC)/libstring.c
-#STATIC_LIB_OBJS=$(patsubst $(SRC)/%.c, $(STATIC_LIB)/%.a, $(STATIC_LIB_SRCS))
-#STATIC_LIBS=-lstring
+STATIC_LIB=$(LIB)/static
+STATIC_LIB_SRCS=$(SRC)/libtcp.c
+STATIC_LIB_OBJS=$(patsubst $(SRC)/%.c, $(STATIC_LIB)/%.a, $(STATIC_LIB_SRCS))
+STATIC_LIBS=-ltcp
 
-#LIBS=-L$(STATIC_LIB) 
+LIBS=-L$(STATIC_LIB) 
 #LIBS+=-L$(SHARED_LIB)
 #LIBS+=$(SHARED_LIBS)
-#LIBS+=$(STATIC_LIBS)
+LIBS+=$(STATIC_LIBS)
 BIN_DIR=$(WORKSPACE)/bin
 BIN=$(BIN_DIR)/$(TARGET)
 

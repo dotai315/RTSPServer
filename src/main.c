@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s PORT\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    printf("Hello World\n");
+    tcp_t *newTCP;
+    newTCP = tcp_init();
     exit(EXIT_SUCCESS);
 }
