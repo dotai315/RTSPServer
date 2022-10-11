@@ -18,21 +18,21 @@ OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS_OBJ))
 
 LIB=$(WORKSPACE)/lib
 
-#SHARED_LIB=$(LIB)/shared
-#SHARED_LIB_SRCS=$(SRC)/libhello.c $(SRC)/libscan.c
-#SHARED_LIB_OBJS=$(patsubst $(SRC)/%.c, $(SHARED_LIB)/%.so, $(SHARED_LIB_SRCS))
-#SHARED_LIBS=-lhello -lscan
+SHARED_LIB=$(LIB)/shared
+SHARED_LIB_SRCS=$(SRC)/libtcp.c
+SHARED_LIB_OBJS=$(patsubst $(SRC)/%.c, $(SHARED_LIB)/%.so, $(SHARED_LIB_SRCS))
+SHARED_LIBS=-ltcp
 
 
-STATIC_LIB=$(LIB)/static
-STATIC_LIB_SRCS=$(SRC)/libtcp.c
-STATIC_LIB_OBJS=$(patsubst $(SRC)/%.c, $(STATIC_LIB)/%.a, $(STATIC_LIB_SRCS))
-STATIC_LIBS=-ltcp
+#STATIC_LIB=$(LIB)/static
+#STATIC_LIB_SRCS=$(SRC)/libtcp.c
+#TATIC_LIB_OBJS=$(patsubst $(SRC)/%.c, $(STATIC_LIB)/%.a, $(STATIC_LIB_SRCS))
+#STATIC_LIBS=-ltcp
 
-LIBS=-L$(STATIC_LIB) 
-#LIBS+=-L$(SHARED_LIB)
-#LIBS+=$(SHARED_LIBS)
-LIBS+=$(STATIC_LIBS)
+#LIBS=-L$(STATIC_LIB) 
+LIBS+=-L$(SHARED_LIB)
+LIBS+=$(SHARED_LIBS)
+#LIBS+=$(STATIC_LIBS)
 BIN_DIR=$(WORKSPACE)/bin
 BIN=$(BIN_DIR)/$(TARGET)
 
