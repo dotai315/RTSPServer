@@ -18,14 +18,20 @@
 typedef struct 
 {
     struct addrinfo *hints;
+    int sockFd;
 } tcp_t;
 
 /* Allocate and initialization tcp object*/
 tcp_t *tcp_init(void);
 
 /* Method to set and get value of attribute tcp struct*/
+int             tcp_getSockFileDescriptor(tcp_t *tcp);
+int             tcp_setSockFileDescriptor(tcp_t *tcp, struct addrinfo *rp);
+
 struct addrinfo *tcp_getAddrinfo(tcp_t *tcp);
 void            tcp_setAddrinfo(tcp_t *tcp, struct addrinfo *newHints);
 void            tcp_printAddrinfo(tcp_t *tcp);
+
+int             tcp_config(tcp_t *tcp, const char *node, const char *service);
 
 #endif

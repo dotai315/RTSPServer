@@ -22,6 +22,17 @@ static struct addrinfo *tcp_allocateAddrinfo(void)
     return newHints;
 }
 
+static struct addrinfo **tcp_allocateResAddrinfo(void)
+{
+    struct addrinfo **newResAddrinfo = (struct addrinfo **)malloc(sizeof(struct addrinfo *));
+    if (newResAddrinfo == NULL)
+    {
+        fprintf(stderr, "[ERROR] Not enough space to allocate tcp result getaddrinfo object\n");
+        exit(EXIT_FAILURE);
+    }
+    return newResAddrinfo;
+}
+
 tcp_t *tcp_init(void)
 {
     tcp_t *obj; 
@@ -35,6 +46,21 @@ tcp_t *tcp_init(void)
     obj->hints->ai_socktype = SOCK_STREAM;
     obj->hints->ai_protocol = IPPROTO_TCP;
     return obj;
+}
+
+int             tcp_getSockFileDescriptor(tcp_t *tcp)
+{
+    return tcp->sockFd;
+}
+
+int            tcp_setSockFileDescriptor(tcp_t *tcp, struct addrinfo *rp)
+{
+    tcp->sockFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+    if (tcp->sockFd < 0)
+    {
+        return -1;
+    }
+    return tcp->sockFd;
 }
 
 struct addrinfo *tcp_getAddrinfo(tcp_t *tcp)
@@ -58,4 +84,42 @@ void            tcp_printAddrinfo(tcp_t *tcp)
     char ip[INET_ADDRSTRLEN];
     struct sockaddr_in *info = (struct sockaddr_in *)tcp->hints->ai_addr;
     inet_ntop(AF_INET, &(info->sin_addr.s_addr), ip, INET_ADDRSTRLEN);
+}
+
+int             tcp_config(tcp_t *tcp, const char *node, const char *service)
+{
+    int error = -1;
+    struct addrinfo **res = NULL;
+    struct addrinfo *rp = NULL;
+
+    res = tcp_allocateResAddrinfo();
+    error = getaddrinfo(node, service, tcp->hints, res);
+    if (error != 0)
+    {
+        fprintf(stderr, "[ERROR] getaddrinfo; %s\n", gai_strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    for(rp = *res; rp != NULL; rp = rp->ai_next)
+    {
+        if (tcp_setSockFileDescriptor(tcp, rp) < 0)
+        {
+            continue;
+        }
+
+        if (bind(tcp_getSockFileDescriptor(tcp), rp->ai_addr, rp->ai_addrlen) == 0)
+        {
+            break;
+        }
+
+        close(tcp_getSockFileDescriptor(tcp));
+    }
+    if (rp == NULL)
+    {
+        fprintf(stderr, "[ERROR] config tcp: %s\n", strerror(errno));
+        return -1;
+    }
+
+    freeaddrinfo(*res);
+    return 0;
 }

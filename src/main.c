@@ -9,5 +9,7 @@ int main(int argc, char *argv[])
     }
     tcp_t *newTCP;
     newTCP = tcp_init();
+    tcp_config(newTCP, NULL, argv[1]);
+    printf("Hello\n");
     exit(EXIT_SUCCESS);
 }
