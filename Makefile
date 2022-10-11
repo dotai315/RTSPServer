@@ -36,7 +36,6 @@ LIB=$(WORKSPACE)/lib
 BIN_DIR=$(WORKSPACE)/bin
 BIN=$(BIN_DIR)/$(TARGET)
 
-.PHONY: all
 all: $(BIN)
 
 $(BIN): $(SHARED_LIB_OBJS) $(STATIC_LIB_OBJS)
@@ -53,3 +52,5 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 clean:
 	rm -rf $(OBJ)/* $(BIN)/*
+
+.PHONY: all $(BIN)
