@@ -55,8 +55,15 @@ int             tcp_getSockFileDescriptor(tcp_t *tcp)
 
 int            tcp_setSockFileDescriptor(tcp_t *tcp, struct addrinfo *rp)
 {
+    int *opt = (int *)malloc(sizeof(int));
+
+    *opt = 1;
     tcp->sockFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
     if (tcp->sockFd < 0)
+    {
+        return -1;
+    }
+    if (setsockopt(tcp->sockFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, opt, sizeof(opt)))
     {
         return -1;
     }
@@ -114,6 +121,7 @@ int             tcp_config(tcp_t *tcp, const char *node, const char *service)
 
         close(tcp_getSockFileDescriptor(tcp));
     }
+
     if (rp == NULL)
     {
         fprintf(stderr, "[ERROR] config tcp: %s\n", strerror(errno));
@@ -128,3 +136,26 @@ int             tcp_config(tcp_t *tcp, const char *node, const char *service)
     }
     return 0;
 }
+
+int             tcp_send(tcp_t *tcp, void *data, size_t len)
+{
+    int retVal = -1;
+    retVal = send(tcp_getSockFileDescriptor(tcp), data, len, MSG_NOSIGNAL);
+    if (retVal < 0)
+    {
+        return -1;
+    }
+    return retVal;
+}
+int             tcp_recv(tcp_t *tcp, void *data, size_t len)
+{
+    int retVal = -1;
+    retVal = recv(tcp_getSockFileDescriptor(tcp), data, len, 0);
+    if (retVal < 0)
+    {
+        return -1;
+    }
+    return retVal;
+}
+
+

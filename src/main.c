@@ -7,8 +7,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s PORT\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    tcp_t *newTCP;
-    newTCP = tcp_init();
-    tcp_config(newTCP, NULL, argv[1]);
+
+    tcp_server_t *server;
+
+    server = tcpServer_init();
+    
     exit(EXIT_SUCCESS);
 }
