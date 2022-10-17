@@ -13,9 +13,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    tcp_server_t *server;
+    tcp_server_t *server;   
 
     server = tcpServer_init();
+    tcpServer_setPort(server, 1234);
     tcpServer_acceptClient(server, test);
     
     exit(EXIT_SUCCESS);

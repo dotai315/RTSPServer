@@ -40,7 +40,6 @@ tcp_server_t *tcpServer_init(void)
     newObj->socket = tcp_init();
     newObj->clientAddr = tcpServer_allocClientAddr();
     newObj->clientAddrLen = tcpServer_allocClientAddrLen();
-
     return newObj;
 }
 
@@ -78,12 +77,11 @@ TCP_INTEGER       tcpServer_acceptClient(tcp_server_t *server, void (*func)())
     char *portNum = NULL;
     int portServer = tcpServer_getPort(server);
 
-    if (tcpServer_getPort(server) == TCP_ERROR)
+    if (portServer == TCP_ERROR)
     {
         fprintf(stderr, "[ERROR] Had not set port number\n");
         return TCP_ERROR;
     }    
-
     portNumLen = snprintf(NULL, 0, "%d", portServer);
     portNum = (char *)malloc(portNumLen + 1);
     snprintf(portNum, portNumLen + 1, "%d", portServer);

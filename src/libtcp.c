@@ -45,7 +45,7 @@ tcp_t *tcp_init(void)
     obj->hints->ai_flags = AI_PASSIVE;
     obj->hints->ai_socktype = SOCK_STREAM;
     obj->hints->ai_protocol = IPPROTO_TCP;
-    obj->port = -1;
+    obj->port = TCP_ERROR;
     return obj;
 }
 

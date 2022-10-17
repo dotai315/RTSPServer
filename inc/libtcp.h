@@ -28,7 +28,7 @@
 #define TCP_VOID            void
 
 
-#define TCP_ERROR           -1
+#define TCP_ERROR           65535
 
 typedef struct 
 {
