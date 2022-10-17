@@ -21,7 +21,7 @@ LIB=$(WORKSPACE)/lib
 SHARED_LIB=$(LIB)/shared
 SHARED_LIB_SRCS=$(SRC)/libtcp.c $(SRC)/libtcpServer.c
 SHARED_LIB_OBJS=$(SHARED_LIB)/libtcp.so
-SHARED_LIBS=-ltcp
+SHARED_LIBS=-ltcp -lpthread
 
 
 #STATIC_LIB=$(LIB)/static
@@ -39,16 +39,16 @@ BIN=$(BIN_DIR)/$(TARGET)
 all: $(BIN)
 
 $(BIN): $(SHARED_LIB_OBJS) $(STATIC_LIB_OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(MAIN_SRC) $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $(MAIN_SRC) $(LIBS) 
 
 $(SHARED_LIB)/libtcp.so: $(OBJ)/libtcp.o  $(OBJ)/libtcpServer.o
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $@ $^ -lc
+	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $@ $^ -lc -lpthread
 
 $(STATIC_LIB)/%.a: $(OBJ)/%.o
 	ar rcs $@ $<
 
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -fPIC -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -fPIC -c $< -o $@ -lpthread
 
 clean:
 	rm -rf $(OBJ)/* $(BIN)/*

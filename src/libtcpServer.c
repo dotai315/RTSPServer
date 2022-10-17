@@ -1,5 +1,12 @@
 #include "libtcpServer.h"
 
+static tcp_server_t *tcpServer_copyServer(tcp_server_t *server)
+{
+    tcp_server_t *copyServer = (tcp_server_t *)malloc(sizeof(*server));
+    memcpy(copyServer, server, sizeof(*server));
+    return copyServer;
+}
+
 TCP_BOOLEAN tcpServer_isCreatedServer(tcp_server_t *server)
 {
     if (server == NULL)
@@ -40,6 +47,8 @@ tcp_server_t *tcpServer_init(void)
     newObj->socket = tcp_init();
     newObj->clientAddr = tcpServer_allocClientAddr();
     newObj->clientAddrLen = tcpServer_allocClientAddrLen();
+    newObj->clients = NULL;
+
     return newObj;
 }
 
@@ -142,4 +151,68 @@ TCP_INTEGER         tcpServer_receiveFromClient(tcp_server_t *server, void *data
         data = malloc(len);
     }
     return tcp_recv(tcpServer_getClientFileDescriptor(server), data, len);
+}
+TCP_INTEGER            tcpServer_acceptMultiClient(tcp_server_t *server, void *(*routine)(void *))
+{
+    int index = 0;
+    int portNumLen = 0;
+    char *portNum = NULL;
+    int portServer = tcpServer_getPort(server);
+
+    if (portServer == TCP_ERROR)
+    {
+        fprintf(stderr, "[ERROR] Had not set port number\n");
+        return TCP_ERROR;
+    }    
+    portNumLen = snprintf(NULL, 0, "%d", portServer);
+    portNum = (char *)malloc(portNumLen + 1);
+    snprintf(portNum, portNumLen + 1, "%d", portServer);
+
+    if (tcp_config(server->socket, NULL, portNum) == TCP_ERROR)
+    {
+        fprintf(stderr, "[ERROR] tcp config error\n");
+        return TCP_ERROR;
+    }   
+
+    if (tcpServer_getMultiClient(server) == NULL)
+    {
+        fprintf(stderr, "[ERROR] Not created thread for multiclient\n");
+        return TCP_ERROR;
+    }
+
+    while (TCP_TRUE)
+    {
+        tcpServer_setClientFileDescriptor(server, accept(tcp_getSockFileDescriptor(server->socket), server->clientAddr, server->clientAddrLen));   
+        tcp_server_t *copyServer = tcpServer_copyServer(server);
+        if (pthread_create(server->clients + index, NULL, routine, copyServer) != 0)
+        {
+            printf("Have Create thread at: %d\n", index);
+        }
+
+        index++;
+        if (index >= server->n_client)
+        {
+            index = 0;
+            while (index < server->n_client)
+            {
+                pthread_join(*(server->clients + index), NULL);
+                index++;
+            }
+            index = 0;
+        }
+    }
+}
+
+TCP_THREAD          tcpServer_getMultiClient(tcp_server_t *server)
+{
+    return server->clients;
+}
+TCP_VOID            tcpServer_setMuliClient(tcp_server_t *server, int n_client)
+{
+    if (server->clients != NULL)
+    {
+        free(server->clients);
+    }
+    server->n_client = n_client;
+    server->clients = (TCP_THREAD)malloc(sizeof(pthread_t));
 }
