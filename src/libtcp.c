@@ -138,23 +138,23 @@ int             tcp_config(tcp_t *tcp, const char *node, const char *service)
     return 0;
 }
 
-int             tcp_send(tcp_t *tcp, void *data, size_t len)
+int             tcp_send(int fd, void *data, size_t len)
 {
     int retVal = -1;
-    retVal = send(tcp_getSockFileDescriptor(tcp), data, len, MSG_NOSIGNAL);
+    retVal = send(fd, data, len, MSG_NOSIGNAL);
     if (retVal < 0)
     {
         return TCP_ERROR;
     }
     return retVal;
 }
-int             tcp_recv(tcp_t *tcp, void *data, size_t len)
+int             tcp_recv(int fd, void *data, size_t len)
 {
     int retVal = -1;
-    retVal = recv(tcp_getSockFileDescriptor(tcp), data, len, 0);
+    retVal = recv(fd, data, len, 0);
     if (retVal < 0)
     {
-        return TCP_ERROR;
+        return -1;
     }
     return retVal;
 }

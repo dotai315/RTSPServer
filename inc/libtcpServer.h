@@ -12,7 +12,9 @@ typedef struct
 } tcp_server_t;
 
 tcp_server_t        *tcpServer_init(void);
-TCP_INTEGER         tcpServer_acceptClient(tcp_server_t *server, void (*routine)());
+TCP_INTEGER         tcpServer_acceptClient(tcp_server_t *server, void (*routine)(void *));
+TCP_INTEGER         tcpServer_sendClient(tcp_server_t *server, void *data, ssize_t len);
+TCP_INTEGER         tcpServer_receiveFromClient(tcp_server_t *server, void *data, ssize_t len);
 
 TCP_SOCKETADDRESS   tcpServer_getClientAddress(tcp_server_t *server);
 TCP_VOID            tcpServer_setClientAddress(tcp_server_t *server, TCP_SOCKETADDRESS addr);

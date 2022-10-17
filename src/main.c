@@ -1,8 +1,12 @@
 #include "main.h"
 
-void test(void)
+void test(void * arg)
 {
-    printf("DoTai\n");
+    char buf[500];
+    tcp_server_t *server = (tcp_server_t *)arg;
+    tcpServer_receiveFromClient(server, buf, 500);
+    printf("Client: %s\n", buf);
+    tcpServer_sendClient(server, "DoTai", strlen("DoTai"));
 }
 
 int main(int argc, char *argv[])

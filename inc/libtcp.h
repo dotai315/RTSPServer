@@ -51,8 +51,8 @@ TCP_UINT16      tcp_getPort(tcp_t *tcp);
 TCP_VOID        tcp_setPort(tcp_t *tcp, TCP_UINT16 port);
 
 TCP_INTEGER     tcp_config(tcp_t *tcp, const char *node, const char *service);
-TCP_INTEGER     tcp_send(tcp_t *tcp, void *data, size_t len);
-TCP_INTEGER     tcp_recv(tcp_t *tcp, void *data, size_t len);
+TCP_INTEGER     tcp_send(int fd, void *data, size_t len);
+TCP_INTEGER     tcp_recv(int fd, void *data, size_t len);
 
 TCP_BOOLEAN     tcp_isCreateSocket(tcp_t *tcp);            
 

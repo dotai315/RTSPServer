@@ -97,7 +97,7 @@ TCP_INTEGER       tcpServer_acceptClient(tcp_server_t *server, void (*func)())
         fprintf(stderr, "[ERROR] Accept failed: %s\n", strerror(errno));
         return TCP_ERROR;
     }
-    func();
+    func(server);
     return 0;
 }
 TCP_INTEGER            tcpServer_setPort(tcp_server_t *server, TCP_UINT16 port)
@@ -123,4 +123,23 @@ TCP_INTEGER         tcpServer_getClientFileDescriptor(tcp_server_t *server)
 TCP_VOID            tcpServer_setClientFileDescriptor(tcp_server_t *server, TCP_INTEGER fd)
 {
     server->clientFd = fd;
+}
+
+TCP_INTEGER         tcpServer_sendClient(tcp_server_t *server, void *data, ssize_t len)
+{
+    if (data == NULL)
+    {
+        fprintf(stderr, "[ERROR] Tranfer Data is null\n");
+        return -1;
+    }
+
+    return tcp_send(tcpServer_getClientFileDescriptor(server), data, len);
+}
+TCP_INTEGER         tcpServer_receiveFromClient(tcp_server_t *server, void *data, ssize_t len)
+{
+    if (data == NULL)
+    {
+        data = malloc(len);
+    }
+    return tcp_recv(tcpServer_getClientFileDescriptor(server), data, len);
 }
