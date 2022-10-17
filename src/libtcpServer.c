@@ -1,6 +1,6 @@
 #include "libtcpServer.h"
 
-bool tcpServer_isCreatedServer(tcp_server_t *server)
+TCP_BOOLEAN tcpServer_isCreatedServer(tcp_server_t *server)
 {
     if (server == NULL)
     {
@@ -10,11 +10,9 @@ bool tcpServer_isCreatedServer(tcp_server_t *server)
     return true;
 }
 
-
-
-static struct sockaddr * tcpServer_allocClientAddr(void)
+static TCP_SOCKETADDRESS tcpServer_allocClientAddr(void)
 {
-    struct sockaddr *addr = (struct sockaddr *)malloc(sizeof(struct sockaddr));
+    TCP_SOCKETADDRESS addr = (TCP_SOCKETADDRESS)malloc(sizeof(struct sockaddr));
     if (addr == NULL)
     {
         fprintf(stderr, "[ERROR] Not enough space to create tcp server object\n");
@@ -23,9 +21,9 @@ static struct sockaddr * tcpServer_allocClientAddr(void)
     return addr;
 }
 
-static socklen_t *tcpServer_allocClientAddrLen(void)
+static TCP_SOCKETLENGTH tcpServer_allocClientAddrLen(void)
 {
-    socklen_t *len = (socklen_t *)malloc(sizeof(socklen_t));
+    TCP_SOCKETLENGTH len = (TCP_SOCKETLENGTH)malloc(sizeof(socklen_t));
     if (len == NULL)
     {
         fprintf(stderr, "[ERROR] Not enough space to create address length object\n");
@@ -42,10 +40,11 @@ tcp_server_t *tcpServer_init(void)
     newObj->socket = tcp_init();
     newObj->clientAddr = tcpServer_allocClientAddr();
     newObj->clientAddrLen = tcpServer_allocClientAddrLen();
+
     return newObj;
 }
 
-struct sockaddr *tcpServer_getClientAddress(tcp_server_t *server)
+TCP_SOCKETADDRESS tcpServer_getClientAddress(tcp_server_t *server)
 {
     if (tcpServer_isCreatedServer(server) == false)
     {
@@ -54,14 +53,76 @@ struct sockaddr *tcpServer_getClientAddress(tcp_server_t *server)
     
     return server->clientAddr;
 }
-void             tcpServer_setClientAddress(tcp_server_t *server, struct sockaddr *addr)
+TCP_VOID tcpServer_setClientAddress(tcp_server_t *server, TCP_SOCKETADDRESS addr)
 {
     if (tcpServer_isCreatedServer(server) == false)
     {
-        return NULL;
+        return ;
     }
-    
+    server->clientAddr = addr;
+}   
+
+TCP_SOCKETLENGTH tcpServer_getClientAddressLength(tcp_server_t *server)
+{
+    return server->clientAddrLen;
 }
 
-socklen_t       *tcpServer_getClientAddressLength(tcp_server_t *server);
-void             tcpServer_setClientAddressLength(tcp_server_t *server, socklen_t *len);
+TCP_VOID             tcpServer_setClientAddressLength(tcp_server_t *server, socklen_t *len)
+{
+    server->clientAddrLen = len;
+}
+
+TCP_INTEGER       tcpServer_acceptClient(tcp_server_t *server, void (*func)())
+{
+    int portNumLen = 0;
+    char *portNum = NULL;
+    int portServer = tcpServer_getPort(server);
+
+    if (tcpServer_getPort(server) == TCP_ERROR)
+    {
+        fprintf(stderr, "[ERROR] Had not set port number\n");
+        return TCP_ERROR;
+    }    
+
+    portNumLen = snprintf(NULL, 0, "%d", portServer);
+    portNum = (char *)malloc(portNumLen + 1);
+    snprintf(portNum, portNumLen + 1, "%d", portServer);
+
+    if (tcp_config(server->socket, NULL, portNum) == TCP_ERROR)
+    {
+        fprintf(stderr, "[ERROR] tcp config error\n");
+        return TCP_ERROR;
+    }   
+    tcpServer_setClientFileDescriptor(server, accept(tcp_getSockFileDescriptor(server->socket), server->clientAddr, server->clientAddrLen));
+    if (tcpServer_getClientFileDescriptor(server) < 0)
+    {
+        fprintf(stderr, "[ERROR] Accept failed: %s\n", strerror(errno));
+        return TCP_ERROR;
+    }
+    func();
+    return 0;
+}
+TCP_INTEGER            tcpServer_setPort(tcp_server_t *server, TCP_UINT16 port)
+{
+    if (port < 0)
+    {
+        fprintf(stderr, "[ERROR] Invalid Port\n");
+        return TCP_ERROR;
+    }
+    tcp_setPort(server->socket, port);
+    return 0;
+}
+
+TCP_UINT16          tcpServer_getPort(tcp_server_t *server)
+{
+    return tcp_getPort(server->socket);
+}
+
+TCP_INTEGER         tcpServer_getClientFileDescriptor(tcp_server_t *server)
+{
+    return server->clientFd;
+}
+TCP_VOID            tcpServer_setClientFileDescriptor(tcp_server_t *server, TCP_INTEGER fd)
+{
+    server->clientFd = fd;
+}

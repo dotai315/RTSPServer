@@ -45,6 +45,7 @@ tcp_t *tcp_init(void)
     obj->hints->ai_flags = AI_PASSIVE;
     obj->hints->ai_socktype = SOCK_STREAM;
     obj->hints->ai_protocol = IPPROTO_TCP;
+    obj->port = -1;
     return obj;
 }
 
@@ -61,11 +62,11 @@ int            tcp_setSockFileDescriptor(tcp_t *tcp, struct addrinfo *rp)
     tcp->sockFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
     if (tcp->sockFd < 0)
     {
-        return -1;
+        return TCP_ERROR;
     }
     if (setsockopt(tcp->sockFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, opt, sizeof(opt)))
     {
-        return -1;
+        return TCP_ERROR;
     }
     return tcp->sockFd;
 }
@@ -125,7 +126,7 @@ int             tcp_config(tcp_t *tcp, const char *node, const char *service)
     if (rp == NULL)
     {
         fprintf(stderr, "[ERROR] config tcp: %s\n", strerror(errno));
-        return -1;
+        return TCP_ERROR;
     }
 
     freeaddrinfo(*res);
@@ -143,7 +144,7 @@ int             tcp_send(tcp_t *tcp, void *data, size_t len)
     retVal = send(tcp_getSockFileDescriptor(tcp), data, len, MSG_NOSIGNAL);
     if (retVal < 0)
     {
-        return -1;
+        return TCP_ERROR;
     }
     return retVal;
 }
@@ -153,9 +154,18 @@ int             tcp_recv(tcp_t *tcp, void *data, size_t len)
     retVal = recv(tcp_getSockFileDescriptor(tcp), data, len, 0);
     if (retVal < 0)
     {
-        return -1;
+        return TCP_ERROR;
     }
     return retVal;
 }
 
 
+TCP_UINT16      tcp_getPort(tcp_t *tcp)
+{
+    return tcp->port;
+}
+
+TCP_VOID        tcp_setPort(tcp_t *tcp, TCP_UINT16 port)
+{
+    tcp->port = port;
+}

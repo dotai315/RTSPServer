@@ -6,16 +6,23 @@
 typedef struct 
 {
     tcp_t               *socket;
-    TCP_ADDRESSINFO     clientAddr;
+    TCP_SOCKETADDRESS   clientAddr;
     TCP_SOCKETLENGTH    clientAddrLen;
+    TCP_INTEGER         clientFd;
 } tcp_server_t;
 
-tcp_server_t *tcpServer_init(void);
+tcp_server_t        *tcpServer_init(void);
+TCP_INTEGER         tcpServer_acceptClient(tcp_server_t *server, void (*routine)());
 
-struct sockaddr *tcpServer_getClientAddress(tcp_server_t *server);
-void             tcpServer_setClientAddress(tcp_server_t *server, struct sockaddr *addr);
+TCP_SOCKETADDRESS   tcpServer_getClientAddress(tcp_server_t *server);
+TCP_VOID            tcpServer_setClientAddress(tcp_server_t *server, TCP_SOCKETADDRESS addr);
 
-socklen_t       *tcpServer_getClientAddressLength(tcp_server_t *server);
-void             tcpServer_setClientAddressLength(tcp_server_t *server, socklen_t *len);
+TCP_SOCKETLENGTH    tcpServer_getClientAddressLength(tcp_server_t *server);
+TCP_VOID            tcpServer_setClientAddressLength(tcp_server_t *server, TCP_SOCKETLENGTH len);
 
+TCP_INTEGER         tcpServer_setPort(tcp_server_t *server, TCP_UINT16 port);
+TCP_UINT16          tcpServer_getPort(tcp_server_t *server);
+
+TCP_INTEGER         tcpServer_getClientFileDescriptor(tcp_server_t *server);
+TCP_VOID            tcpServer_setClientFileDescriptor(tcp_server_t *server, TCP_INTEGER fd);
 #endif 
